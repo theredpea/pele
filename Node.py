@@ -1,3 +1,5 @@
+import re
+
 class Node(object):
         
         floating = None
@@ -25,13 +27,49 @@ class Node(object):
                 self.initAttributes();
                 return self._attributes
 
-        tagDelims = ('.', '#')
-        def parseTagName(self, tagName):
-                """Node.parseTagName("div.className#id") -> Node
+        def parseTagName(self, tagExpression):
+                """Node.parseTagName("div.className#idName")
+                -> Node with class of "className" and id attribute of "idName"
+                Equivalent to Node("div").addClass("className").addAttribute("id", "idName")
+                
                 Accepts string in CSS3 syntax for ID and classes
-                Creates a Node that would match the selector"""                #http://stackoverflow.com/a/4664889/1175496
-                [(m.start(), m.end()) for m in re.finditer('[#\.][^#\.]*', e)]
-                #[(3, 6), (6, 12)]
-                while found:
-                        
-                return self._attributes
+                Creates a Node that would match the selector"""
+                
+                firstDelim = None
+                for match in re.finditer('\.(?P<class>\w*)|#(?P<id>\w*)', tagExpression):
+                        firstDelim = firstDelim or match.start()
+                        self.addClass(match.group('class'))
+                        self.addAttribute('id', match.group('id'))
+
+                self._tagName = tagExpression[:firstDelim]
+                
+                assert self._tagName, "Need a tagName, could not find in {0}".format(tagExpression)
+                                      
+        def addClass(self, newClass=None, *args):
+                """Node.addClass("newClassName anotherNewClass")
+                -> Node with class="newClassName anotherNewClass"""
+                if not newClass and not args:
+                        return self
+                
+                newClassList = [c for c in (newClass.split(' ') + list(args)) if c and c not in self._attributes.setdefault('class', '')]
+                self._attributes['class']+= ' ' + ' '.join(newClassList)
+                return self
+                
+        def addAttribute(self, prop=None, value=None, **kwargs):
+                """Node.addClass("newClassName anotherNewClass")
+                -> Node with class="newClassName anotherNewClass"""
+                if not prop:
+                        if not value and not kwargs:
+                                return self
+                else:
+                        if value:
+                                self._attributes[prop]=value
+                        #elif prop in self._attributes:
+                        #        del self._attributes[prop]
+                
+                for prop,value in kwargs.items():
+                        self.addAttribute(prop, value)
+                return self
+        
+                                
+
