@@ -12,7 +12,6 @@ def alias(*args):
 
 class Node(object):
         
-        floating = None
         
         def __init__(self, tagName, **kwargs):
                 """Node("div", class="className", id="specialDiv")
@@ -54,8 +53,7 @@ class Node(object):
                 self._attributes['class']+= ' ' + ' '.join(newClassList)
                 self._attributes['class'] = self._attributes['class'].strip() #Avoid starting space: class=' a b c'
                 return self
-        
-        @alias('attr')        
+          
         def addAttribute(self, prop=None, value=None, **kwargs):
                 """Node.addAttribute("href", "http://www.google.com")
                 -> Node with "href = 'http://www.google.com'
@@ -73,8 +71,18 @@ class Node(object):
                 for prop,value in kwargs.items():
                         self.addAttribute(prop, value)
                 return self
+
+        def add(self, *args):
+                self._children += args
+                return self
+
+        def addText(self, *args):
+                return self.add(*args)
         
-                                
+        #jQuery aliases
+        attr = addAttribute
+        append = add
+        text = addText
 
         def __str__(self):
                 selfClosing = False
