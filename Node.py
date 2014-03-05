@@ -1,5 +1,15 @@
 import re
 
+def alias(*args):
+        aliases = args
+        def decorator(f):
+                print(f)
+                print(type(f))
+                def replacement(*args, **kwargs):
+                        f(*args, **kwargs)
+                return replacement
+        return decorator
+
 class Node(object):
         
         floating = None
@@ -31,7 +41,7 @@ class Node(object):
                 self._tagName = tagExpression[:firstDelim]
                 
                 assert self._tagName, "Need a tagName, could not find in {0}".format(tagExpression)
-                                      
+
         def addClass(self, newClass=None, *args):
                 """Node.addClass("newClassName anotherNewClass")
                 -> Node with class="newClassName anotherNewClass
@@ -44,7 +54,8 @@ class Node(object):
                 self._attributes['class']+= ' ' + ' '.join(newClassList)
                 self._attributes['class'] = self._attributes['class'].strip() #Avoid starting space: class=' a b c'
                 return self
-                
+        
+        @alias('attr')        
         def addAttribute(self, prop=None, value=None, **kwargs):
                 """Node.addAttribute("href", "http://www.google.com")
                 -> Node with "href = 'http://www.google.com'
