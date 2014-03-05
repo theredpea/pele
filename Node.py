@@ -42,6 +42,7 @@ class Node(object):
                 
                 newClassList = [c for c in (newClass.split(' ') + list(args)) if c and c not in self._attributes.setdefault('class', '')]
                 self._attributes['class']+= ' ' + ' '.join(newClassList)
+                self._attributes['class'] = self._attributes['class'].strip() #Avoid starting space: class=' a b c'
                 return self
                 
         def addAttribute(self, prop=None, value=None, **kwargs):
@@ -54,7 +55,7 @@ class Node(object):
                                 return self
                 else:
                         if value:
-                                self._attributes[prop]=value
+                                self._attributes[prop]=str(value).strip()
                         #elif prop in self._attributes:
                         #        del self._attributes[prop]
                 

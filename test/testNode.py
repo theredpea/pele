@@ -17,6 +17,14 @@ class NodeConstructorTestCase(NodeTestCase):
     def test_same_as_(self):
         self.assertEqual(str(self.div), str(Node('div').addAttribute('id', 'idName').addAttribute('class','className')))
         
+class NodeParseTagTestCase(NodeTestCase):
+    def setUp(self):
+        self.abcDiv = Node("div.a.b.c")
+        
+    def test_multiple_classes(self):
+        self.assertIn('class', self.abcDiv._attributes)
+        self.assertEqual(self.abcDiv._attributes['class'], 'a b c')
+        
 
 class NodeAddAttributeTestCase(NodeTestCase):
     def setUp(self):
