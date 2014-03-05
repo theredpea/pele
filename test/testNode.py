@@ -1,18 +1,35 @@
 import unittest
 from Node import Node
 
-class NodeStringTestCase(unittest.TestCase):
+class NodeTestCase(unittest.TestCase):
     def setUp(self):
         self.div = Node("div#idName.className")
+
+
+class NodeStringTestCase(NodeTestCase):
         
-    def runTest(self):
+    def test_str_1(self):
         self.assertEqual(str(self.div), '<div class="className" id="idName" ></div>')
 
 
-class NodeAddAttributeTestCase(unittest.TestCase):
+class NodeConstructorTestCase(NodeTestCase):
+        
+    def test_same_as_(self):
+        self.assertEqual(str(self.div), str(Node('div').addAttribute('id', 'idName').addAttribute('class','className')))
+        
+
+class NodeAddAttributeTestCase(NodeTestCase):
     def setUp(self):
         self.div = Node("div#idName#secondIdName")
+        self.a = Node("a")
+
+    def test_add_inserts(self):
+        self.a.addAttribute("href", "http://www.google.com")
+        self.assertIn("href", self.a._attributes)
+        self.assertEqual(self.a._attributes["href"], "http://www.google.com")
+
         
-    def runTest(self):
+        
+    def test_attributes_override(self):
         self.assertIsNotNone(self.div._attributes['id'])
         self.assertEqual(self.div._attributes['id'],'secondIdName')
