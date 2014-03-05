@@ -5,27 +5,14 @@ class Node(object):
         floating = None
         
         def __init__(self, tagName, **kwargs):
+                """Node("div", class="className", id="specialDiv")
+                -> <div class="className" id ="specialDiv"></div>"""
                 self._children = []
                 self._attributes = kwargs
                 self.parseTagName(tagName)
 
         def render(self):
                 return self
-
-        @property
-        def children(self):
-                if not self._children:
-                        self._children = Fragment()
-                return self._children
-
-        @children.setter
-        def children(self, value):
-                self._children = value
-
-        @property
-        def attributes(self):
-                self.initAttributes();
-                return self._attributes
 
         def parseTagName(self, tagExpression):
                 """Node.parseTagName("div.className#idName")
@@ -47,7 +34,9 @@ class Node(object):
                                       
         def addClass(self, newClass=None, *args):
                 """Node.addClass("newClassName anotherNewClass")
-                -> Node with class="newClassName anotherNewClass"""
+                -> Node with class="newClassName anotherNewClass
+
+                Alternatate: Node.addClass("newClassName", "anotherNewClass")"""
                 if not newClass and not args:
                         return self
                 
@@ -56,8 +45,10 @@ class Node(object):
                 return self
                 
         def addAttribute(self, prop=None, value=None, **kwargs):
-                """Node.addClass("newClassName anotherNewClass")
-                -> Node with class="newClassName anotherNewClass"""
+                """Node.addAttribute("href", "http://www.google.com")
+                -> Node with "href = 'http://www.google.com'
+
+                Alternatate: Node.addAttribute(href="http://www.google.com")"""
                 if not prop:
                         if not value and not kwargs:
                                 return self
@@ -73,3 +64,9 @@ class Node(object):
         
                                 
 
+        def __str__(self):
+                selfClosing = False
+                opener = ['<', self._tagName, ' ' ] + [''.join([prop.strip(), '="', val.strip(), '" ']) for prop, val in sorted(self._attributes.items())]
+                closer = ['/>'] if selfClosing else (['>']+[str(c) for c in self._children] + ['</', self._tagName, '>'])
+                
+                return ''.join(opener + closer)
