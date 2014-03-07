@@ -1,14 +1,6 @@
 import re
+import itertools
 
-def alias(*args):
-        aliases = args
-        def decorator(f):
-                print(f)
-                print(type(f))
-                def replacement(*args, **kwargs):
-                        f(*args, **kwargs)
-                return replacement
-        return decorator
 
 class Node(object):
         
@@ -16,9 +8,13 @@ class Node(object):
         def __init__(self, tagName, **kwargs):
                 """Node("div", class="className", id="specialDiv")
                 -> <div class="className" id ="specialDiv"></div>"""
+                self._parent = None
+                
                 self._children = []
                 self._attributes = kwargs
+
                 self.parseTagName(tagName)
+                
 
         def render(self):
                 return self
@@ -52,6 +48,7 @@ class Node(object):
                 newClassList = [c for c in (newClass.split(' ') + list(args)) if c and c not in self._attributes.setdefault('class', '')]
                 self._attributes['class']+= ' ' + ' '.join(newClassList)
                 self._attributes['class'] = self._attributes['class'].strip() #Avoid starting space: class=' a b c'
+                
                 return self
           
         def addAttribute(self, prop=None, value=None, **kwargs):
@@ -65,17 +62,40 @@ class Node(object):
                 else:
                         if value:
                                 self._attributes[prop]=str(value).strip()
-                        #elif prop in self._attributes:
-                        #        del self._attributes[prop]
                 
                 for prop,value in kwargs.items():
                         self.addAttribute(prop, value)
                 return self
 
         def add(self, *args):
-                self._children += args
-                return self
 
+                def _addParent(a):
+                        #Assign parents on an individual level
+                        try:
+                                a._parent = self
+                        except:
+                                pass
+                        return a
+                
+                def _iter(a):
+                        if not a:
+                                #Filter out nulls, empty lists, etc
+                                return []
+                        try:
+                                #Must be iterable for itertools.chain to work
+                                iter(a)
+                                return a
+                        except:
+                                return [a]
+                
+                #Consequence of making children a itertools.chain object;
+                        #Once iterated, it is exhausted
+                self._children = itertools.chain(self._children,
+                                                        itertools.imap(_addParent, itertools.chain.from_iterable(
+                                                                itertools.imap(_iter, args))))
+                return self
+        
+        
         def addText(self, *args):
                 return self.add(*args)
         
@@ -86,7 +106,13 @@ class Node(object):
 
         def __str__(self):
                 selfClosing = False
-                opener = ['<', self._tagName, ' ' ] + [''.join([prop.strip(), '="', val.strip(), '" ']) for prop, val in sorted(self._attributes.items())]
-                closer = ['/>'] if selfClosing else (['>']+[str(c) for c in self._children] + ['</', self._tagName, '>'])
+                opener = ['<', self._tagName.lower(), ' ' ] + [''.join([prop.strip(), '="', val.strip(), '" ']) for prop, val in sorted(self._attributes.items())]
+                closer = ['/>'] if selfClosing else (['>']+ [str(_) for _ in list(self.children)] + ['</', self._tagName, '>'])
                 
                 return ''.join(opener + closer)
+        
+        @property
+        def children(self):
+                #Since iterating the _children will empty it out
+                self._children = list(self._children)
+                return self._children
