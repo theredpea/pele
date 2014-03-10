@@ -31,20 +31,29 @@ class NodeAddTestCase(NodeTestCase):
         
     def test_number_children_equal_number_add(self):
         _num=3
-        self.div.add([Node("p")]*_num)
         
+        self.div.add([Node("p")]*_num)
         self.assertEqual(len(self.div.children), _num)
 
         
     def test_none_ignored(self):
-        div = Node("div")
         _children = ['text', None, 'text']
         _truthyChildren = filter(None, _children)
+        
+        div = Node("div")
         div.add(*_children)
         
         self.assertEqual(len(div.children), len(_truthyChildren))
 
-        
+    def test_arg_expansion_equals_single_iter_arg(self):
+        _gen = (Node("p").add(a) for a in 'NATE')
+        _list = list(_gen)
+        _tag = "div"
+
+        div_expansion =     Node(_tag).add(*_list)
+        div_single_arg =    Node(_tag).add(_list)
+            
+        self.assertEqual(str(div_expansion), str(div_single_arg))
 
         
 class NodeAddAttributeTestCase(NodeTestCase):

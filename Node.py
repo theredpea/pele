@@ -2,25 +2,36 @@ import re
 import itertools
 from Text import Text
 
+        
+
+        
 class Node(object):
         
         
-        def __init__(self, tagName, **kwargs):
+        #Stylistic decisions
+        _sortAttrs = True
+        
+        #HTML DOM distinctions
+        _hasRef = False
+        _selfClosing = False
+        _blockElement = False
+        
+        def __init__(self, tagName='', **kwargs):
                 """Node("div", class="className", id="specialDiv")
                 -> <div class="className" id ="specialDiv"></div>
 
                 TODO: Some inheritance:
                 http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-22445964"""
                 self._parent = None
-                
                 self._children = []
-                self._attributes = kwargs
+                self._attributes= {}
                 self._classes = set()
                 
-                self.parseTagName(tagName)
+                self.addAttribute(**kwargs)
+                
+                if tagName:
+                        self.parseTagName(tagName)
 
-                self._selfClosing = False
-                self._sortAttrs = True
                 
 
         def render(self):
@@ -96,7 +107,7 @@ class Node(object):
                 
                 return self
 
-        def add(self, *args):
+        def add(self, argList=[], *args):
                 """div.add(Node("p").add("Paragraph content"))
                 -> Node where _children includes p;
                 Will render <div><p>Paragraph content</p></div>
@@ -123,20 +134,15 @@ class Node(object):
                 #Consequence of making children a itertools.chain object;
                         #Once iterated, it is exhausted
                 self._children = itertools.chain(self._children,
-                                                        itertools.imap(_addParent, itertools.chain.from_iterable(
-                                                                itertools.imap(_iter,
-                                                                        itertools.ifilter(None, args)))))
+                                                        itertools.imap(_addParent, itertools.ifilter(None,      #Filter out empty
+                                                                itertools.chain(_iter(argList), itertools.chain.from_iterable(  #Support two syntaxes
+                                                                        itertools.imap(_iter,args)))))) #Make iterable for itertools.chain to work
                 return self
         
         
         def addText(self, *args):
                 return self.add(*args)
         
-        #jQuery aliases
-        attr = addAttribute
-        append = add
-        text = addText
-
         @property
         def _joinableIter(self):
                 """Produces iterable
@@ -193,3 +199,59 @@ class Node(object):
                 #Since iterating the _children will empty it out
                 self._children = list(self._children)
                 return self._children
+
+        #jQuery aliases
+        attr = addAttribute
+        append = add
+        text = addText
+
+
+class Element(Node):
+        pass
+
+##########
+
+class BlockElement(Element):
+        """Opposite of block element is inline element"""
+        _blockElement = True
+
+class SelfClosingElement(Element):
+        _selfClosing = True
+
+class HasRefElement(Element):
+        _hasRef = True
+        _refAttrs = ('link', 'href', 'src')
+
+
+##########
+        
+class Div(BlockElement):
+        _tagName="div"
+        
+class P(BlockElement):
+        _tagName="p"
+        
+class A(HasRefElement):
+        _tagName="a"
+        
+class Input(SelfClosingElement):
+        _tagName="input"
+        _validTypes = ('text', 'email')
+        
+        def __init__(self, *args, **kwargs):
+                super(SelfClosingElement, self).__init__(*args, **kwargs)
+
+        def addAttribute(self, *args, **kwargs):
+                _defaults = dict(type='text')
+                _defaults.update(kwargs)
+                
+                super(SelfClosingElement, self).addAttribute(*args, **_defaults)
+                
+                self._type = self._attributes.get('type')
+                return self
+        
+        def _validate(self):
+                assert self._type, 'Input needs a type'
+                assert self._type in Input._validTypes, 'Input needs a valid type, {0} not in {1}'.format(self._type, Input._validTypes)
+
+                return True
