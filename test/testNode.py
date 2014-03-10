@@ -23,12 +23,12 @@ class NodeParseTagTestCase(NodeTestCase):
         
     def test_multiple_classes(self):
         self.assertIn('class', self.abcDiv._attributes)
-        self.assertEqual(self.abcDiv._attributes['class'], 'a b c')
+        self.assertEqual(self.abcDiv._classes, set('abc'))
         
 
 class NodeAddAttributeTestCase(NodeTestCase):
     def setUp(self):
-        self.div = Node("div#idName#secondIdName")
+
         self.a = Node("a")
 
     def test_add_inserts(self):
@@ -36,8 +36,30 @@ class NodeAddAttributeTestCase(NodeTestCase):
         self.assertIn("href", self.a._attributes)
         self.assertEqual(self.a._attributes["href"], "http://www.google.com")
 
-        
-        
     def test_attributes_override(self):
-        self.assertIsNotNone(self.div._attributes['id'])
-        self.assertEqual(self.div._attributes['id'],'secondIdName')
+        _1 = 'firstIdName'
+        _2 = 'secondIdName'
+        _3 = 'thirdIdName'
+        
+        self.div = Node('div#{0}#{1}'.format(_1, _2))
+        self.assertIsNotNone(self.div._attributes.get('id'))
+        
+        #That secondIdName overrode firstIdName in constructor
+        self.assertNotEqual(self.div._attributes['id'],_1)
+        self.assertEqual(self.div._attributes['id'], _2)
+        
+        #That thirdIdName overrode secondIdName in addAttribute
+        self.div.addAttribute('id', _3)
+        self.assertNotEqual(self.div._attributes['id'], _2)
+        self.assertEqual(self.div._attributes['id'], _3)
+        
+    def test_id_property(self):
+        _i = 'idValue'
+        div = Node('div#{}'.format(_i))
+        self.assertEqual(div.id, _i)
+        self.assertIsNotNone(div._attributes.get('id'))
+        self.assertEqual(div.id, div._attributes.get('id'))
+        
+
+
+    

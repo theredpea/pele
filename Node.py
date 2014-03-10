@@ -7,13 +7,20 @@ class Node(object):
         
         def __init__(self, tagName, **kwargs):
                 """Node("div", class="className", id="specialDiv")
-                -> <div class="className" id ="specialDiv"></div>"""
+                -> <div class="className" id ="specialDiv"></div>
+
+                TODO: Some inheritance:
+                http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-22445964"""
                 self._parent = None
                 
                 self._children = []
                 self._attributes = kwargs
-
+                self._classes = set()
+                
                 self.parseTagName(tagName)
+
+                self._selfClosing = False
+                self._sortAttrs = True
                 
 
         def render(self):
@@ -25,7 +32,9 @@ class Node(object):
                 Equivalent to Node("div").addClass("className").addAttribute("id", "idName")
                 
                 Accepts string in CSS3 syntax for ID and classes
-                Creates a Node that would match the selector"""
+                Creates a Node that would match the selector
+
+                CSS3 Attribute syntax [property=value] is *not supported*"""
                 
                 firstDelim = None
                 for match in re.finditer('\.(?P<class>\w*)|#(?P<id>\w*)', tagExpression):
@@ -41,34 +50,58 @@ class Node(object):
                 """Node.addClass("newClassName anotherNewClass")
                 -> Node with class="newClassName anotherNewClass
 
-                Alternatate: Node.addClass("newClassName", "anotherNewClass")"""
+                Alternatate: Node.addClass("newClassName", "anotherNewClass")
+
+                Uses a set to store classes internally (same for other? http://www.crummy.com/software/BeautifulSoup/bs4/doc/#multi-valued-attributes)
+                Splits on spaces
+                Ignores falsey classes
+                Otherwise accepts user input (case-sensitive)"""
                 if not newClass and not args:
                         return self
-                
-                newClassList = [c for c in (newClass.split(' ') + list(args)) if c and c not in self._attributes.setdefault('class', '')]
-                self._attributes['class']+= ' ' + ' '.join(newClassList)
-                self._attributes['class'] = self._attributes['class'].strip() #Avoid starting space: class=' a b c'
-                
+
+                self._classes.update(itertools.chain.from_iterable([c.split(' ') for c in ([newClass] + list(args)) if c]))
+                self._attributes['class'] = ' '.join(self._classes)
                 return self
-          
+
+        @property
+        def id(self):
+                return self._attributes.get('id', None)
+        
+        @property
+        def classAttr(self):
+                return ' '.join(self._classes)
+        @property
+        def name(self):
+                return self._tagName
+        
         def addAttribute(self, prop=None, value=None, **kwargs):
                 """Node.addAttribute("href", "http://www.google.com")
                 -> Node with "href = 'http://www.google.com'
 
-                Alternatate: Node.addAttribute(href="http://www.google.com")"""
-                if not prop:
-                        if not value and not kwargs:
-                                return self
-                else:
-                        if value:
-                                self._attributes[prop]=str(value).strip()
+                Alternatate: Node.addAttribute(href="http://www.google.com")
+                Order doesn't matter
+                Calls self.addClass for any attribute named class"""
+                if not prop and not kwargs:
+                        return self
+                elif prop and value:
+                        kwargs[prop] = value
+
+                if 'class' in kwargs:
+                        #Set Logic
+                        self.addClass(kwargs['class'])
+                        del kwargs['class']
+        
+                self._attributes.update(kwargs)
                 
-                for prop,value in kwargs.items():
-                        self.addAttribute(prop, value)
+                
                 return self
 
         def add(self, *args):
+                """div.add(Node("p").add("Paragraph content"))
+                -> Node where _children includes p;
+                Will render <div><p>Paragraph content</p></div>
 
+                """
                 def _addParent(a):
                         #Assign parents on an individual level
                         try:
@@ -104,12 +137,54 @@ class Node(object):
         append = add
         text = addText
 
-        def __str__(self):
-                selfClosing = False
-                opener = ['<', self._tagName.lower(), ' ' ] + [''.join([prop.strip(), '="', val.strip(), '" ']) for prop, val in sorted(self._attributes.items())]
-                closer = ['/>'] if selfClosing else (['>']+ [str(_) for _ in list(self.children)] + ['</', self._tagName, '>'])
+        @property
+        def _joinableIter(self):
+                """Produces iterable
+                Node("div")._joinableIter
+                -> ['<','div', ' ', '>', '</', 'div', '>']
+
+                Used in stringing
+                """
+                def _joinable(a):
+                        try:
+                                return a._joinableIter
+                        except:
+                                return [str(a)]
+                        
                 
-                return ''.join(opener + closer)
+                opener = itertools.chain(
+                                ['<', self._tagName.lower(), ' ' ],
+                                itertools.chain.from_iterable(self._joinableAttrIter))
+                
+                closer = ['/>'] if self._selfClosing else itertools.chain(
+                                ['>'],
+                                itertools.chain.from_iterable(itertools.imap(_joinable, self.children)),
+                                ['</', self._tagName, '>'])
+                                                     
+                return itertools.chain(opener,closer)
+
+        @property
+        def _joinableAttrIter(self):
+                """Produces iterable
+                Node("div").addAttribute(href="http://www.github.com", class="open")
+                ->['class', '="', 'open', '"', 'href="', 'http://www.github.com', '"']
+
+                Used in stringing
+                If self.sorted, puts them in sorted order
+                Else whatever dictionary order
+                """
+                def _attr((k,v)):
+                        return [str(k).strip(), '="', str(v).strip(), '" ']
+                
+                if self._sortAttrs:
+                        attrs = sorted(self._attributes.items())
+                else:
+                        attrs = self._attributes.items()
+
+                return itertools.imap(_attr, attrs)
+                                      
+        def __str__(self):
+                return ''.join(self._joinableIter)
         
         @property
         def children(self):
