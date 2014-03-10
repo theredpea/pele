@@ -1,5 +1,6 @@
 import unittest
 from Node import Node
+import timeit
 
 class NodeTestCase(unittest.TestCase):
     def setUp(self):
@@ -8,27 +9,46 @@ class NodeTestCase(unittest.TestCase):
 
 class NodeStringTestCase(NodeTestCase):
         
-    def test_str_1(self):
+    def test_str_output_matches_string(self):
         self.assertEqual(str(self.div), '<div class="className" id="idName" ></div>')
-
-
-class NodeConstructorTestCase(NodeTestCase):
         
-    def test_same_as_(self):
+    def test_str_output_matches_new_node_string(self):
         self.assertEqual(str(self.div), str(Node('div').addAttribute('id', 'idName').addAttribute('class','className')))
         
 class NodeParseTagTestCase(NodeTestCase):
     def setUp(self):
         self.abcDiv = Node("div.a.b.c")
         
-    def test_multiple_classes(self):
+    def test_has_classes(self):
         self.assertIn('class', self.abcDiv._attributes)
         self.assertEqual(self.abcDiv._classes, set('abc'))
         
+    def test_has_id(self):
+        self.assertIn('class', self.abcDiv._attributes)
+        self.assertEqual(self.abcDiv._classes, set('abc'))
 
+class NodeAddTestCase(NodeTestCase):
+        
+    def test_number_children_equal_number_add(self):
+        _num=3
+        self.div.add([Node("p")]*_num)
+        
+        self.assertEqual(len(self.div.children), _num)
+
+        
+    def test_none_ignored(self):
+        div = Node("div")
+        _children = ['text', None, 'text']
+        _truthyChildren = filter(None, _children)
+        div.add(*_children)
+        
+        self.assertEqual(len(div.children), len(_truthyChildren))
+
+        
+
+        
 class NodeAddAttributeTestCase(NodeTestCase):
     def setUp(self):
-
         self.a = Node("a")
 
     def test_add_inserts(self):
@@ -60,6 +80,17 @@ class NodeAddAttributeTestCase(NodeTestCase):
         self.assertIsNotNone(div._attributes.get('id'))
         self.assertEqual(div.id, div._attributes.get('id'))
         
-
-
+class NodeSpeedTestCase(NodeTestCase):
     
+    class C(object):
+            def __init__(self, **kwargs):
+                    self.__dict__.update(kwargs)
+                    
+    def rowMaker(self, o):
+        return Node("tr").append((Node("td").append(v) for k,v in sorted(o.__dict__.items())))
+    
+    def headerMaker(self, o):
+        return Node("tr").append((Node("th").append(k) for k in sorted(o.__dict__.keys())))
+
+    def test_timing_large_table(self):
+        pass

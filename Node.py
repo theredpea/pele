@@ -1,6 +1,6 @@
 import re
 import itertools
-
+from Text import Text
 
 class Node(object):
         
@@ -111,9 +111,8 @@ class Node(object):
                         return a
                 
                 def _iter(a):
-                        if not a:
-                                #Filter out nulls, empty lists, etc
-                                return []
+                        if isinstance(a, str):
+                                return [Text(a)]
                         try:
                                 #Must be iterable for itertools.chain to work
                                 iter(a)
@@ -125,7 +124,8 @@ class Node(object):
                         #Once iterated, it is exhausted
                 self._children = itertools.chain(self._children,
                                                         itertools.imap(_addParent, itertools.chain.from_iterable(
-                                                                itertools.imap(_iter, args))))
+                                                                itertools.imap(_iter,
+                                                                        itertools.ifilter(None, args)))))
                 return self
         
         
@@ -144,6 +144,8 @@ class Node(object):
                 -> ['<','div', ' ', '>', '</', 'div', '>']
 
                 Used in stringing
+                Based on idea that ''.join(iterOfStrings) is fastest way
+                to construct big string; vs StringIO; alt StringBuilder
                 """
                 def _joinable(a):
                         try:
