@@ -25,6 +25,7 @@ class Node(object):
                 TODO: Some inheritance:
                 http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-22445964"""
                 self._parent = None
+                self._level = 0
                 self._children = []
                 self._attributes= {}
                 self._classes = set()
@@ -119,6 +120,7 @@ class Node(object):
                         #Assign parents on an individual level
                         try:
                                 a._parent = self
+                                a._level = self._level+1
                         except:
                                 pass
                         return a
@@ -154,7 +156,7 @@ class Node(object):
                 Based on idea that ''.join(iterOfStrings) is fastest way
                 to construct big string; vs StringIO; alt StringBuilder
                 """
-                self._prettyIndent =(_prettyIndent==True or ((not self._parent or self._overrideParentPretty) and self._prettyIndent==True))
+                self._prettyIndent =((not self._parent or self._overrideParentPretty) and self._parent._prettyIndent)
                 
                 def _joinable(a):
                         try:
@@ -174,8 +176,8 @@ class Node(object):
 
 
                 
-                startIndent = (['\n']+['\t']*level) if self._prettyIndent else []
-                endIndent = (['\n']+['\t']*(level-1)) if self._prettyIndent else []
+                startIndent = (['\n']+['\t']*self._level) if (self._parent and self._prettyIndent) else []
+                endIndent = (['\n']+['\t']*(self._level-1)) if (self._parent and self._prettyIndent) else []
                 
                 return itertools.chain(startIndent, opener,closer, endIndent)
         
@@ -232,21 +234,60 @@ class SelfClosingElement(Element):
 
 class HasRefElement(Element):
         _hasRef = True
-        _refAttrs = ('link', 'href', 'src')
+        _refAttrs = ('action','cite','href','rel','rev','src')
 
 
 ##########
         
 class Div(BlockElement):
-        _tagName="div"
+        _tagName='div'
         
 class P(BlockElement):
-        _tagName="p"
+        _tagName='p'
         
 class A(HasRefElement):
         _tagName="a"
+
+class Del(HasRefElement):
+        _tagName="del"
         
-class Input(SelfClosingElement):
+class Blockquote(HasRefElement):
+        _tagName="blockquote"
+        
+class Form(HasRefElement):
+        _tagName="form"
+        
+class Iframe(HasRefElement):
+        _tagName="iframe"
+        
+class Ins(HasRefElement):
+        _tagName="ins"
+        
+class Q(HasRefElement):
+        _tagName="q"
+        
+class Script(HasRefElement):
+        _tagName="script"
+        
+#SelfClosing
+        
+class Br(SelfClosingElement):
+        _tagName="br"
+        
+class Col(SelfClosingElement):
+        _tagName="col"
+        
+class Hr(SelfClosingElement):
+        _tagName="hr"
+        
+class Meta(SelfClosingElement):
+        _tagName="meta"
+        
+class Param(SelfClosingElement):
+        _tagName="param"
+        
+#Both
+class Input(SelfClosingElement, HasRefElement):
         _tagName="input"
         _validTypes = ('text', 'email')
         
@@ -267,3 +308,15 @@ class Input(SelfClosingElement):
                 assert self._type in Input._validTypes, 'Input needs a valid type, {0} not in {1}'.format(self._type, Input._validTypes)
 
                 return True
+        
+class Area(SelfClosingElement, HasRefElement):
+        _tagName="area"
+
+class Img(SelfClosingElement, HasRefElement):
+        _tagName="img"
+
+class Link(SelfClosingElement, HasRefElement):
+        _tagName="link"
+
+
+				
