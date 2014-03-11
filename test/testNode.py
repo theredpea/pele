@@ -5,7 +5,7 @@ import timeit
 class NodeTestCase(unittest.TestCase):
     def setUp(self):
         self.div = Node("div#idName.className")
-
+        
 
 class NodeStringTestCase(NodeTestCase):
         
@@ -13,6 +13,15 @@ class NodeStringTestCase(NodeTestCase):
         self.assertEqual(str(self.div), '<div class="className" id="idName" ></div>')
         
     def test_str_output_matches_new_node_string(self):
+        #Really testing that CSS3 constructor is same as addAttributes;
+        self.assertEqual(str(self.div), str(Node('div').addAttribute('id', 'idName').addAttribute('class','className')))
+        
+    def test_str_output_pretty_indent_matches_string(self):
+        _divWithPara = Node("div").add(Node("p"))
+        _divWithPara._prettyIndent = True
+        self.assertEqual(str(_divWithPara), '\n<div >\n\t<p ></p>\n</div>\n')
+        
+    def test_str_output_pretty_indent_matches_new_node_string(self):
         self.assertEqual(str(self.div), str(Node('div').addAttribute('id', 'idName').addAttribute('class','className')))
         
 class NodeParseTagTestCase(NodeTestCase):

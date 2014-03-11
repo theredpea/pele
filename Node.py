@@ -10,6 +10,8 @@ class Node(object):
         
         #Stylistic decisions
         _sortAttrs = True
+        _prettyIndent = False
+        _overrideParentPretty = False
         
         #HTML DOM distinctions
         _hasRef = False
@@ -143,8 +145,7 @@ class Node(object):
         def addText(self, *args):
                 return self.add(*args)
         
-        @property
-        def _joinableIter(self):
+        def _joinableLevelIter(self, level=0, _prettyIndent = False):
                 """Produces iterable
                 Node("div")._joinableIter
                 -> ['<','div', ' ', '>', '</', 'div', '>']
@@ -153,9 +154,11 @@ class Node(object):
                 Based on idea that ''.join(iterOfStrings) is fastest way
                 to construct big string; vs StringIO; alt StringBuilder
                 """
+                self._prettyIndent =(_prettyIndent==True or ((not self._parent or self._overrideParentPretty) and self._prettyIndent==True))
+                
                 def _joinable(a):
                         try:
-                                return a._joinableIter
+                                return a._joinableLevelIter(level+1, self._prettyIndent)
                         except:
                                 return [str(a)]
                         
@@ -168,9 +171,18 @@ class Node(object):
                                 ['>'],
                                 itertools.chain.from_iterable(itertools.imap(_joinable, self.children)),
                                 ['</', self._tagName, '>'])
-                                                     
-                return itertools.chain(opener,closer)
 
+
+                
+                startIndent = (['\n']+['\t']*level) if self._prettyIndent else []
+                endIndent = (['\n']+['\t']*(level-1)) if self._prettyIndent else []
+                
+                return itertools.chain(startIndent, opener,closer, endIndent)
+        
+        @property
+        def _joinableIter(self):
+                return self._joinableLevelIter()
+        
         @property
         def _joinableAttrIter(self):
                 """Produces iterable
