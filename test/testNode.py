@@ -19,7 +19,7 @@ class ElementStringTestCase(ElementTestCase):
     def test_str_output_pretty_indent_matches_string(self):
         _divWithPara = Element("div").add(Element("p"))
         _divWithPara._prettyIndent = True
-        self.assertEqual(str(_divWithPara), '\n<div >\n\t<p ></p>\n</div>\n')
+        self.assertEqual(str(_divWithPara), '<div >\n\t<p ></p>\n</div>')
         
     def test_str_output_pretty_indent_matches_new_Element_string(self):
         self.assertEqual(str(self.div), str(Element('div').addAttribute('id', 'idName').addAttribute('class','className')))
