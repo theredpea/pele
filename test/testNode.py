@@ -1,32 +1,32 @@
 import unittest
-from Node import Node
 import timeit
+from html import Element
 
-class NodeTestCase(unittest.TestCase):
+class ElementTestCase(unittest.TestCase):
     def setUp(self):
-        self.div = Node("div#idName.className")
+        self.div = Element("div#idName.className")
         
 
-class NodeStringTestCase(NodeTestCase):
+class ElementStringTestCase(ElementTestCase):
         
     def test_str_output_matches_string(self):
         self.assertEqual(str(self.div), '<div class="className" id="idName" ></div>')
         
-    def test_str_output_matches_new_node_string(self):
+    def test_str_output_matches_new_Element_string(self):
         #Really testing that CSS3 constructor is same as addAttributes;
-        self.assertEqual(str(self.div), str(Node('div').addAttribute('id', 'idName').addAttribute('class','className')))
+        self.assertEqual(str(self.div), str(Element('div').addAttribute('id', 'idName').addAttribute('class','className')))
         
     def test_str_output_pretty_indent_matches_string(self):
-        _divWithPara = Node("div").add(Node("p"))
+        _divWithPara = Element("div").add(Element("p"))
         _divWithPara._prettyIndent = True
         self.assertEqual(str(_divWithPara), '\n<div >\n\t<p ></p>\n</div>\n')
         
-    def test_str_output_pretty_indent_matches_new_node_string(self):
-        self.assertEqual(str(self.div), str(Node('div').addAttribute('id', 'idName').addAttribute('class','className')))
+    def test_str_output_pretty_indent_matches_new_Element_string(self):
+        self.assertEqual(str(self.div), str(Element('div').addAttribute('id', 'idName').addAttribute('class','className')))
         
-class NodeParseTagTestCase(NodeTestCase):
+class ElementParseTagTestCase(ElementTestCase):
     def setUp(self):
-        self.abcDiv = Node("div.a.b.c")
+        self.abcDiv = Element("div.a.b.c")
         
     def test_has_classes(self):
         self.assertIn('class', self.abcDiv._attributes)
@@ -36,12 +36,12 @@ class NodeParseTagTestCase(NodeTestCase):
         self.assertIn('class', self.abcDiv._attributes)
         self.assertEqual(self.abcDiv._classes, set('abc'))
 
-class NodeAddTestCase(NodeTestCase):
+class ElementAddTestCase(ElementTestCase):
         
     def test_number_children_equal_number_add(self):
         _num=3
         
-        self.div.add([Node("p")]*_num)
+        self.div.add([Element("p")]*_num)
         self.assertEqual(len(self.div.children), _num)
 
         
@@ -49,25 +49,25 @@ class NodeAddTestCase(NodeTestCase):
         _children = ['text', None, 'text']
         _truthyChildren = filter(None, _children)
         
-        div = Node("div")
+        div = Element("div")
         div.add(*_children)
         
         self.assertEqual(len(div.children), len(_truthyChildren))
 
     def test_arg_expansion_equals_single_iter_arg(self):
-        _gen = (Node("p").add(a) for a in 'NATE')
+        _gen = (Element("p").add(a) for a in 'NATE')
         _list = list(_gen)
         _tag = "div"
 
-        div_expansion =     Node(_tag).add(*_list)
-        div_single_arg =    Node(_tag).add(_list)
+        div_expansion =     Element(_tag).add(*_list)
+        div_single_arg =    Element(_tag).add(_list)
             
         self.assertEqual(str(div_expansion), str(div_single_arg))
 
         
-class NodeAddAttributeTestCase(NodeTestCase):
+class ElementAddAttributeTestCase(ElementTestCase):
     def setUp(self):
-        self.a = Node("a")
+        self.a = Element("a")
 
     def test_add_inserts(self):
         self.a.addAttribute("href", "http://www.google.com")
@@ -79,7 +79,7 @@ class NodeAddAttributeTestCase(NodeTestCase):
         _2 = 'secondIdName'
         _3 = 'thirdIdName'
         
-        self.div = Node('div#{0}#{1}'.format(_1, _2))
+        self.div = Element('div#{0}#{1}'.format(_1, _2))
         self.assertIsNotNone(self.div._attributes.get('id'))
         
         #That secondIdName overrode firstIdName in constructor
@@ -93,22 +93,22 @@ class NodeAddAttributeTestCase(NodeTestCase):
         
     def test_id_property(self):
         _i = 'idValue'
-        div = Node('div#{}'.format(_i))
+        div = Element('div#{}'.format(_i))
         self.assertEqual(div.id, _i)
         self.assertIsNotNone(div._attributes.get('id'))
         self.assertEqual(div.id, div._attributes.get('id'))
         
-class NodeSpeedTestCase(NodeTestCase):
+class ElementSpeedTestCase(ElementTestCase):
     
     class C(object):
             def __init__(self, **kwargs):
                     self.__dict__.update(kwargs)
                     
     def rowMaker(self, o):
-        return Node("tr").append((Node("td").append(v) for k,v in sorted(o.__dict__.items())))
+        return Element("tr").append((Element("td").append(v) for k,v in sorted(o.__dict__.items())))
     
     def headerMaker(self, o):
-        return Node("tr").append((Node("th").append(k) for k in sorted(o.__dict__.keys())))
+        return Element("tr").append((Element("th").append(k) for k in sorted(o.__dict__.keys())))
 
     def test_timing_large_table(self):
         pass
