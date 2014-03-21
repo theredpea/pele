@@ -1,4 +1,4 @@
-from ElementTypes import SelfClosingElement, HasRefElement
+from ..elementTypes import SelfClosingElement, HasRefElement
 
 class Input(SelfClosingElement, HasRefElement):
         _tagName="input"
@@ -21,13 +21,3 @@ class Input(SelfClosingElement, HasRefElement):
                 assert self._type in Input._validTypes, 'Input needs a valid type, {0} not in {1}'.format(self._type, Input._validTypes)
 
                 return True
-        
-class Area(SelfClosingElement, HasRefElement):
-        _tagName="area"
-
-class Img(SelfClosingElement, HasRefElement):
-        _tagName="img"
-
-class Link(SelfClosingElement, HasRefElement):
-        _tagName="link"
-

@@ -1,6 +1,15 @@
 from Element import Element
 
-from ElementHasRef import A, Del, Blockquote, Form, Iframe, Ins, Q, Script
-from ElementBlock import Div, P
-from ElementSelfClosing import Br, Col, Hr, Meta, Param
-from ElementBoth import Input, Area, Img, Link
+#Element Types
+from elementTypes import BlockElement, SelfClosingElement, HasRefElement
+
+#Elements
+import elements
+
+
+def node(*args, **kwargs):
+		"""Convenience method like the Node method inside Modules
+		Not to be confused with the Node class
+		Convenient because it is short; four letters; and lowercase
+		Consider another short method name. """
+		return Element(*args, **kwargs)

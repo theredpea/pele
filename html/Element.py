@@ -2,6 +2,7 @@ from Node import Node
 from Text import Text
 import re
 import itertools
+import sys
 
 def node(*args, **kwargs):
         return Element(*args, **kwargs)
@@ -12,7 +13,35 @@ class Element(Node):
         _hasRef = False
         _selfClosing = False
         _blockElement = False
-        
+
+        def __new__(cls, *args, **kwargs):
+                tagName = (args and args[0]) or kwargs.get('tagName')
+                lowerTagName = tagName.lower()
+
+                import html.elements as elements
+                #print(elements)
+                #print(dir(elements))
+
+                if cls is Element and tagName and lowerTagName in dir(elements):
+                        #Route to the appropriate subclass for validation, etc
+                        #http://www.wellho.net/mouth/1146_-new-v-init-python-constructor-alternatives-.html
+                        #When would you use __new__?
+
+                        # 1. When you want you constructor to return an object 
+                        #of a different type to the class in which it is defined. 
+                        #For example, you have a class "animal" with subclasses "farmanimal" and "pet" 
+                        #and you want the animal cosntructor to be able to examine the data passed in to it 
+                        #and return an animal ... OR a farmanimal OR a pet depending on that data.
+                        
+                        subClass = getattr(elements, lowerTagName)
+                        #print(subClass)
+                        return object.__new__(subClass, *args, **kwargs)
+
+                #print(sorted(sys.modules.keys()))
+                #print(globals().keys()) #['Node', 'node', '__builtins__', 'Text', '__file__', '__package__', 'sys', 're', 'itertools', '__name__', 'Element', '__doc__']
+                #print(locals())
+                      
+                
         def __init__(self, tagName='', *args, **kwargs):
                 
                 super(Element,self).__init__(*args, **kwargs)
