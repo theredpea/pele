@@ -4,9 +4,6 @@ import re
 import itertools
 import sys
 
-def node(*args, **kwargs):
-        return Element(*args, **kwargs)
-
 class Element(Node):
                 
         #HTML DOM distinctions
@@ -32,11 +29,12 @@ class Element(Node):
                         #For example, you have a class "animal" with subclasses "farmanimal" and "pet" 
                         #and you want the animal cosntructor to be able to examine the data passed in to it 
                         #and return an animal ... OR a farmanimal OR a pet depending on that data.
-                        
+
                         subClass = getattr(elements, lowerTagName)
                         #print(subClass)
                         return object.__new__(subClass, *args, **kwargs)
-
+                else:
+                        return object.__new__(cls, *args, **kwargs)
                 #print(sorted(sys.modules.keys()))
                 #print(globals().keys()) #['Node', 'node', '__builtins__', 'Text', '__file__', '__package__', 'sys', 're', 'itertools', '__name__', 'Element', '__doc__']
                 #print(locals())
