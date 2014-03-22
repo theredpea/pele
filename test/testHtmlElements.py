@@ -4,8 +4,15 @@ from testElement import ElementTestCase
 from ..html.elements import *
 
 
-class ElementsConstructorTestCase(ElementTestCase):
+class ElementsFluentConstructorTestCase(ElementTestCase):
         
-    def test_str_output_matches_string(self):
-        self.assertEqual(str(self.div), '<div class="className" id="idName"></div>')
+    def test_fluency(self):
+        d = div(
+                span('hello', 
+                    a('world', 
+                        href='http://en.wikipedia.org/wiki/Hello_world_program')
+                    )
+                )
+        print(d)
+        self.assertTrue(d)
         

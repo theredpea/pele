@@ -9,11 +9,19 @@ from pele.Fragment import Fragment
 
 class NodeFundamentelsTestCase(ElementTestCase):
     def setUp(self):
+        #Tree test
         self._first_a = Element('a')
         self._second_a = Element('a')
         self._both_a = Fragment(self._first_a, self._second_a)
         self._span = Element('span', self._both_a)
         self._div = Element('div', self._span)
+        
+        #Inline test
+        self._open = Text('open ')
+        self._link = Element('a', 'and', href='http://www.wikipedia.org')
+        self._close = Text(' close')
+        self._text = Fragment(self._open, self._link, self._close)
+        self._text_span = Element(span, self._text)
         
         
     def test_level(self):
