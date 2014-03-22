@@ -43,9 +43,11 @@ class ElementAddAttributeTestCase(ElementTestCase):
         self.a = Element("a")
 
     def test_add_inserts(self):
-        self.a.addAttribute("href", "http://www.google.com")
-        self.assertIn("href", self.a._attributes)
-        self.assertEqual(self.a._attributes["href"], "http://www.google.com")
+        _val =  'http://www.google.com'
+        _attr= 'href'
+        self.a.addAttribute(_attr,_val)
+        self.assertIn(_attr, self.a._attributes)
+        self.assertEqual(self.a._attributes[_attr], _val)
 
     def test_attributes_override(self):
         _1 = 'firstIdName'
@@ -55,18 +57,18 @@ class ElementAddAttributeTestCase(ElementTestCase):
         self.div = Element('div#{0}#{1}'.format(_1, _2))
         self.assertIsNotNone(self.div._attributes.get('id'))
         
-        #That secondIdName overrode firstIdName in constructor
+        msg='secondIdName overrode firstIdName in constructor'
         self.assertNotEqual(self.div._attributes['id'],_1)
         self.assertEqual(self.div._attributes['id'], _2)
         
-        #That thirdIdName overrode secondIdName in addAttribute
+        msg='thirdIdName overrode secondIdName in addAttribute'
         self.div.addAttribute('id', _3)
         self.assertNotEqual(self.div._attributes['id'], _2)
         self.assertEqual(self.div._attributes['id'], _3)
         
     def test_id_property(self):
         _i = 'idValue'
-        div = Element('div#{}'.format(_i))
+        div = Element('div#{0}'.format(_i))
         self.assertEqual(div.id, _i)
         self.assertIsNotNone(div._attributes.get('id'))
         self.assertEqual(div.id, div._attributes.get('id'))
@@ -74,8 +76,10 @@ class ElementAddAttributeTestCase(ElementTestCase):
 class ElementSpeedTestCase(ElementTestCase):
     
     class C(object):
-            def __init__(self, **kwargs):
-                    self.__dict__.update(kwargs)
+        """A utility class so kwargs can be closer to a JSON object
+        Imparts all its properties to this __dict__"""
+        def __init__(self, **kwargs):
+                self.__dict__.update(kwargs)
                     
     def rowMaker(self, o):
         return Element("tr").append((Element("td").append(v) for k,v in sorted(o.__dict__.items())))

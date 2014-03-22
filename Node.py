@@ -1,8 +1,7 @@
 from Fragment import Fragment
     
 class Node(object):
-    
-    
+
     #Stylistic decisions
     _sortAttrs = True
     _prettyIndent = False
@@ -17,6 +16,3 @@ class Node(object):
         self._level = 0
         self._children = []
 
-        
-
-				

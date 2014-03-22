@@ -2,6 +2,7 @@
 from ..Node import Node
 from ..Text import Text
 from ..Fragment import Fragment
+from ..IRenderable import IRenderable
 
 #Builtin
 import re
@@ -10,7 +11,7 @@ import sys
 
 
           
-class Element(Node):
+class Element(IRenderable, Node):
         
     #HTML DOM distinctions
     _hasRef = False
@@ -213,7 +214,9 @@ class Element(Node):
                     
     def __str__(self):
         return ''.join(self._joinableLevelIter())
-    
+    def Render(self):
+        return self
+        
     #jQuery aliases
     attr = addAttribute
     append = add

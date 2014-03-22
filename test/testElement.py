@@ -37,7 +37,12 @@ class ElementParseTagTestCase(ElementTestCase):
         self.assertEqual(self.abcDiv._classes, set('abc'))
 
 class ElementHtmlElementRoutingTestCase(ElementTestCase):
-    pass
+    def test_div_is_recognized(self):
+        d = Element('div')
+        self.assertNotEqual(type(d), Element) 
+        from ..html.elements.div import Div
+        self.assertIsInstance(d, Div)
+        #Searches the chain assertNotIsInstance(d, Element)
     
 class ElementConstructorTestCase(ElementTestCase):
     def setUp(self):
