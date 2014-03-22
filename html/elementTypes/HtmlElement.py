@@ -12,4 +12,5 @@ class HtmlElement(Element):
     def __init__(self, *args, **kwargs):
         #print('HtmlElement.init {0} {1}'.format(args, kwargs))
         tagName= self.__class__.__name__.lower()
+        args = (arg for arg in args if arg.lower()!=tagName.lower())
         super(HtmlElement, self).__init__(tagName, *args, **kwargs)

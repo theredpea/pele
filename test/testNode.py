@@ -1,6 +1,6 @@
 import unittest
 import timeit
-from html import Element
+from ..html.Element import Element
 
 class ElementTestCase(unittest.TestCase):
     def setUp(self):
@@ -10,7 +10,7 @@ class ElementTestCase(unittest.TestCase):
 class ElementStringTestCase(ElementTestCase):
         
     def test_str_output_matches_string(self):
-        self.assertEqual(str(self.div), '<div class="className" id="idName" ></div>')
+        self.assertEqual(str(self.div), '<div class="className" id="idName"></div>')
         
     def test_str_output_matches_new_Element_string(self):
         #Really testing that CSS3 constructor is same as addAttributes;
@@ -19,7 +19,7 @@ class ElementStringTestCase(ElementTestCase):
     def test_str_output_pretty_indent_matches_string(self):
         _divWithPara = Element("div").add(Element("p"))
         _divWithPara._prettyIndent = True
-        self.assertEqual(str(_divWithPara), '<div >\n\t<p ></p>\n</div>')
+        self.assertEqual(str(_divWithPara), '<div>\n  <p></p>\n</div>')
         
     def test_str_output_pretty_indent_matches_new_Element_string(self):
         self.assertEqual(str(self.div), str(Element('div').addAttribute('id', 'idName').addAttribute('class','className')))
@@ -42,7 +42,7 @@ class ElementAddTestCase(ElementTestCase):
         _num=3
         
         self.div.add([Element("p")]*_num)
-        self.assertEqual(len(self.div.children), _num)
+        self.assertEqual(len(self.div._children), _num)
 
         
     def test_none_ignored(self):
@@ -52,7 +52,7 @@ class ElementAddTestCase(ElementTestCase):
         div = Element("div")
         div.add(*_children)
         
-        self.assertEqual(len(div.children), len(_truthyChildren))
+        self.assertEqual(len(div._children), len(_truthyChildren))
 
     def test_arg_expansion_equals_single_iter_arg(self):
         _gen = (Element("p").add(a) for a in 'NATE')

@@ -8,6 +8,8 @@ import re
 import itertools
 import sys
 
+
+          
 class Element(Node):
         
     #HTML DOM distinctions
@@ -16,16 +18,14 @@ class Element(Node):
     _blockElement = False
 
     def __new__(cls, *args, **kwargs):
-        #print('Element.new {0} {1} '.format(args, kwargs))
         tagName = (args and args[0]) or kwargs.get('tagName')
-        lowerTagName = tagName and tagName.lower()
-
         try:
-          import html.elements as elements
+            import html.elements as elements
         except Exception as e:
-          import elements
-
-        if cls is Element and tagName and lowerTagName in dir(elements):
+            import elements
+        subClass = getattr(elements, tagName and tagName.lower(), False)
+        
+        if cls is Element and subClass:
             #Route to the appropriate subclass for validation, etc
             #http://www.wellho.net/mouth/1146_-new-v-init-python-constructor-alternatives-.html
             #When would you use __new__?
@@ -35,10 +35,9 @@ class Element(Node):
             #For example, you have a class "animal" with subclasses "farmanimal" and "pet" 
             #and you want the animal cosntructor to be able to examine the data passed in to it 
             #and return an animal ... OR a farmanimal OR a pet depending on that data.
-            args.remove(tagName)
-            subClass = getattr(elements, lowerTagName)
-            return object.__new__(subClass, *args, **kwargs)
+            return object.__new__(subClass, *args, **kwargs)         
         else:
+            print(list(args))
             return object.__new__(cls, *args, **kwargs)
             
         
