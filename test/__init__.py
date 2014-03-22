@@ -1,1 +1,1 @@
-from testNode import ElementStringTestCase
+from testElement import ElementTestCase
