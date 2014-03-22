@@ -52,6 +52,18 @@ class ElementConstructorTestCase(ElementTestCase):
         self.assertTrue(len(self.div_with_span._children[0]._children))
         self.assertEqual(self.div_with_span._children[0]._children[0]._tagName, 'a')
         
+    def test_kwargs_become_classes(self):
+        _div_class = 'div-class'
+        div_with_kwargs = Element('div', **{'class':'div-class'})
+        self.assertIn(_div_class, div_with_kwargs._classes)
+        
+    def test_kwargs_become_data_attr(self):
+        _div_data_attr = 'data-attr'
+        _div_data_val = 'data-val'
+        div_with_kwargs = Element('div', **{_div_data_attr:_div_data_val})
+        self.assertIn(_div_data_attr, div_with_kwargs._attributes)
+        self.assertEqual(div_with_kwargs._attributes[_div_data_attr], _div_data_val)
+        
 class ElementAddTestCase(ElementTestCase):
         
     def test_number_children_equal_number_add(self):
