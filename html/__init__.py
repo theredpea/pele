@@ -1,3 +1,4 @@
+from ..Node import Node
 from Element import Element
 
 #Element Types
