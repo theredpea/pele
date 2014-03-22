@@ -24,6 +24,11 @@ class ElementStringTestCase(ElementTestCase):
     def test_str_output_pretty_indent_matches_new_Element_string(self):
         self.assertEqual(str(self.div), str(Element('div').addAttribute('id', 'idName').addAttribute('class','className')))
         
+    def test_siblings_no_extra_space(self):
+        _d_with_three_spans = Element('div', [Element('span')]*3)
+        
+        self.assertEqual(str(_d_with_three_spans), '<div>\n  <span></span>\n  <span></span>\n  <span></span>\n</div>')
+        
 class ElementParseTagTestCase(ElementTestCase):
     def setUp(self):
         self.abcDiv = Element("div.a.b.c")

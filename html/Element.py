@@ -18,6 +18,9 @@ class Element(IRenderable, Node):
     _selfClosing = False
     _blockElement = False
 
+    #Stylistic decisions
+    _sortAttrs = True
+    
     def __new__(cls, *args, **kwargs):
         tagName = (args and args[0]) or kwargs.get('tagName')
         try:
@@ -38,11 +41,13 @@ class Element(IRenderable, Node):
             #and return an animal ... OR a farmanimal OR a pet depending on that data.
             return object.__new__(subClass, *args, **kwargs)         
         else:
-            print(list(args))
+        
             return object.__new__(cls, *args, **kwargs)
             
         
     def __init__(self, tagName='', *args, **kwargs):
+        """Node("div", class="className", id="specialDiv")
+        -> <div class="className" id ="specialDiv"></div>"""
         
         #print('Element.init {0} {1} {2}'.format(tagName, args, kwargs))
         super(Element,self).__init__(*args, **kwargs)
@@ -114,14 +119,14 @@ class Element(IRenderable, Node):
     @property
     def name(self):
         return self._tagName
-    
     def addAttribute(self, prop=None, value=None, **kwargs):
-        """Node.addAttribute("href", "http://www.google.com")
-        -> Node with "href = 'http://www.google.com'
+        """Node.addAttribute('href', 'http://www.google.com')
+        -> Node with 'href = 'http://www.google.com'
 
-        Alternatate: Node.addAttribute(href="http://www.google.com")
+        Alternatate: Node.addAttribute(href='http://www.google.com')
         Order doesn't matter
         Calls self.addClass for any attribute named class"""
+
         if not prop and not kwargs:
             return self
         elif prop and value:
@@ -170,9 +175,10 @@ class Element(IRenderable, Node):
         Based on idea that ''.join(iterOfStrings) is fastest way
         to construct big string; vs StringIO; alt StringBuilder
         """
-        def _incrLevel(child):
+        def _incrLevel((index, child)):
             try:
                 child._level = self._level+1
+                child._index = index 
             except Exception as e:
                 #A string?
                 pass
@@ -184,11 +190,11 @@ class Element(IRenderable, Node):
         
         closer = ['/>'] if self._selfClosing else itertools.chain(
                 ['>'],
-                itertools.imap(str, itertools.imap(_incrLevel, self._children)),
+                itertools.imap(str, itertools.imap(_incrLevel, enumerate(self._children))),
                 ['</', self._tagName.lower(), '>'])
         
         
-        startIndent = (['\n']+[indent]*self._level) if (self._parent and pretty) else []
+        startIndent = (['\n']*(self._index==0)+[indent]*self._level) if (self._parent and pretty) else []
         endIndent = (['\n']+[indent]*(self._level-1)) if (self._parent and pretty) else []
         
         return itertools.chain(startIndent, opener, closer, endIndent)
@@ -214,6 +220,7 @@ class Element(IRenderable, Node):
                     
     def __str__(self):
         return ''.join(self._joinableLevelIter())
+        
     def Render(self):
         return self
         
