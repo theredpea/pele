@@ -1,4 +1,4 @@
-from ..elementTypes import BlockElement, HtmlElement
+from ..elementTypes import block, htmEl
 
-class Div(HtmlElement, BlockElement):
+class Div(htmEl, block):
     pass

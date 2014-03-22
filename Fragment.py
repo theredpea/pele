@@ -2,6 +2,8 @@ from Text import Text
 
 import itertools
 
+#TODO: Not generalized; should be in html?
+
 def _iter(a):
     if isinstance(a, str):
         return [Text(a)]
@@ -24,20 +26,8 @@ class Fragment(list):
                                                                                 
         super(Fragment, self).__init__(fragItems)
     
-    def __iterFragItems__(self):
-        """Replaces the itertools.chain.from_iterable(itertools.imap(_joinable, self))"""
-        for fragItem in super(Fragment,self).__iter__():
-            
-            try:
-                fragIter = fragItem._joinableLevelIter(self._prettyIndent)
-            except:
-                fragIter = [str(fragItem)]
-                    
-            for fragIterItem in fragIter:
-                yield fragIterItem
-                
     def __str__(self):
-        return '\n'.join(map(str,self.__iterFragItems__()))
+        return '\n'.join(map(str, iter(self)))
         
     def add(self, argList=[], *args):
         self.extend(Fragment(argList, *args))

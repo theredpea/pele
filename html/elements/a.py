@@ -1,4 +1,4 @@
-from ..elementTypes import HasRefElement
+from ..elementTypes import HtmlElement, HasRefElement
 
-class A(HasRefElement):
-        _tagName="a"
+class A(HtmlElement, HasRefElement):
+    pass

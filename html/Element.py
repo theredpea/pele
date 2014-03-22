@@ -147,7 +147,8 @@ class Element(Node):
             #Assign parents on an individual level
             try:
                 a._parent = self
-                a._level = self._level+1
+                #a._level = self._level+1 #Doesnt work here div(div(div('hi')))
+                #Because it's evaluated from inside to outside
             except Exception as e:
                 pass
             return a
@@ -160,7 +161,7 @@ class Element(Node):
     def addText(self, *args):
         return self.add(*args)
     
-    def _joinableLevelIter(self, _prettyIndent = False):
+    def _joinableLevelIter(self, pretty = True, indent='  '):
         """Produces iterable
         Node("div")._joinableLevelIter()
         -> ['<','div', ' ', '>', '</', 'div', '>']
@@ -169,23 +170,26 @@ class Element(Node):
         Based on idea that ''.join(iterOfStrings) is fastest way
         to construct big string; vs StringIO; alt StringBuilder
         """
-        if self._parent and not self._overrideParentPretty:
-            self._prettyIndent = self._parent._prettyIndent
+        def _incrLevel(child):
+            try:
+                child._level = self._level+1
+            except Exception as e:
+                #A string?
+                pass
+            return child
             
-        
         opener = itertools.chain(
                 ['<', self._tagName.lower()],
                 self._joinableAttrsIter())
         
         closer = ['/>'] if self._selfClosing else itertools.chain(
                 ['>'],
-                self._children.__iterFragItems__(),
+                itertools.imap(str, itertools.imap(_incrLevel, self._children)),
                 ['</', self._tagName.lower(), '>'])
-
-
         
-        startIndent = (['\n']+['\t']*self._level) if (self._parent and self._prettyIndent) else []
-        endIndent = (['\n']+['\t']*(self._level-1)) if (self._parent and self._prettyIndent) else []
+        
+        startIndent = (['\n']+[indent]*self._level) if (self._parent and pretty) else []
+        endIndent = (['\n']+[indent]*(self._level-1)) if (self._parent and pretty) else []
         
         return itertools.chain(startIndent, opener, closer, endIndent)
     
