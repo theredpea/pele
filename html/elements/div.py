@@ -1,4 +1,4 @@
-from ..elementTypes import BlockElement
+from ..elementTypes import BlockElement, HtmlElement
 
-class Div(BlockElement):
-        _tagName='div'
+class Div(HtmlElement, BlockElement):
+    pass

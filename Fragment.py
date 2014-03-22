@@ -3,14 +3,14 @@ from Text import Text
 import itertools
 
 def _iter(a):
-        if isinstance(a, str):
-                return [Text(a)]
-        try:
-                #Must be iterable for itertools.chain to work
-                iter(a)
-                return a
-        except:
-                return [a]
+    if isinstance(a, str):
+        return [Text(a)]
+    try:
+        #Must be iterable for itertools.chain to work
+        iter(a)
+        return a
+    except:
+        return [a]
                 
 class Fragment(list):
     """Fragment: a collection on nodes. 
@@ -23,7 +23,7 @@ class Fragment(list):
                                             itertools.imap(_iter,args))))
                                                                                 
         super(Fragment, self).__init__(fragItems)
-
+    
     def __iterFragItems__(self):
         """Replaces the itertools.chain.from_iterable(itertools.imap(_joinable, self))"""
         for fragItem in super(Fragment,self).__iter__():
@@ -37,4 +37,8 @@ class Fragment(list):
                 yield fragIterItem
                 
     def __str__(self):
-        return ''.join(map(str,self.__iterFragItems__()))
+        return '\n'.join(map(str,self.__iterFragItems__()))
+        
+    def add(self, argList=[], *args):
+        self.extend(Fragment(argList, *args))
+        

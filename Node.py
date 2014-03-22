@@ -15,7 +15,7 @@ class Node(object):
 
         self._parent = None
         self._level = 0
-        self._children = Fragment()
+        self._children = []
 
         
 

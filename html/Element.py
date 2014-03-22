@@ -16,8 +16,9 @@ class Element(Node):
     _blockElement = False
 
     def __new__(cls, *args, **kwargs):
+        #print('Element.new {0} {1} '.format(args, kwargs))
         tagName = (args and args[0]) or kwargs.get('tagName')
-        lowerTagName = tagName.lower()
+        lowerTagName = tagName and tagName.lower()
 
         try:
           import html.elements as elements
@@ -34,9 +35,8 @@ class Element(Node):
             #For example, you have a class "animal" with subclasses "farmanimal" and "pet" 
             #and you want the animal cosntructor to be able to examine the data passed in to it 
             #and return an animal ... OR a farmanimal OR a pet depending on that data.
-
+            args.remove(tagName)
             subClass = getattr(elements, lowerTagName)
-            #print(subClass)
             return object.__new__(subClass, *args, **kwargs)
         else:
             return object.__new__(cls, *args, **kwargs)
@@ -44,7 +44,10 @@ class Element(Node):
         
     def __init__(self, tagName='', *args, **kwargs):
         
+        #print('Element.init {0} {1} {2}'.format(tagName, args, kwargs))
         super(Element,self).__init__(*args, **kwargs)
+        
+        self._children = Fragment()
         
         #TODO: Some inheritance:
         #http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-22445964"""
@@ -56,6 +59,8 @@ class Element(Node):
         
         if tagName:
             self.parseTagName(tagName)
+            
+        self.add(*args)
 
         
 
@@ -169,13 +174,13 @@ class Element(Node):
             
         
         opener = itertools.chain(
-                ['<', self._tagName.lower(), ' ' ],
-                itertools.chain.from_iterable(self._joinableAttrIter()))
+                ['<', self._tagName.lower()],
+                self._joinableAttrsIter())
         
         closer = ['/>'] if self._selfClosing else itertools.chain(
                 ['>'],
-                list(self._children.__iterFragItems__()),
-                ['</', self._tagName, '>'])
+                self._children.__iterFragItems__(),
+                ['</', self._tagName.lower(), '>'])
 
 
         
@@ -184,7 +189,7 @@ class Element(Node):
         
         return itertools.chain(startIndent, opener, closer, endIndent)
     
-    def _joinableAttrIter(self):
+    def _joinableAttrsIter(self):
         """Produces iterable
         Node("div").addAttribute(href="http://www.github.com", class="open")
         ->['class', '="', 'open', '"', 'href="', 'http://www.github.com', '"']
@@ -193,15 +198,15 @@ class Element(Node):
         If self.sorted, puts them in sorted order
         Else whatever dictionary order
         """
-        def _attr((k,v)):
-            return [str(k).strip(), '="', str(v).strip(), '" ']
+        def _joinableAttrIter((k,v)):
+            return [' ', str(k).strip(), '="', str(v).strip(), '"']
         
         if self._sortAttrs:
             attrs = sorted(self._attributes.items())
         else:
             attrs = self._attributes.items()
 
-        return itertools.imap(_attr, attrs)
+        return itertools.chain.from_iterable(itertools.imap(_joinableAttrIter, attrs))
                     
     def __str__(self):
         return ''.join(self._joinableLevelIter())
