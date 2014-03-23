@@ -148,7 +148,8 @@ class Element(IRenderable, Node):
                 #from elementTypes import inline
                 if not (isinstance(a,Text)):
                     self._onlyTextChildren = False
-                if not (isinstance(a, Text) or hasattr(a, '_inlineElement')):
+                if getattr(a, '_blockElement', False): 
+                    #BlockElement._inlineElement = False
                     self._hasBlockChildren = True
             except Exception as e:
                 pass
@@ -177,7 +178,7 @@ class Element(IRenderable, Node):
         """
         
         def _incrLevelAndIndex((index, child)):
-            """Rather than relying on the Node properties"""
+            """Rather than relying on the Node @properties"""
             try:
                 child._level = self._level+1
                 child._index = index 
@@ -187,7 +188,10 @@ class Element(IRenderable, Node):
             return child
         
             
-        shouldIndent    =   pretty and not self._onlyTextChildren  and (indentInline or self._parent and self._parent._hasBlockChildren)
+        shouldIndent    =   (pretty                                #If pretty is False, dont worry about it
+                                and not self._onlyTextChildren     #Dont indent if only text children
+                                and (indentInline                  #False by default; may want to indent for clarity
+                                    or self._hasBlockChildren))
 
         opener          =   itertools.chain(
                             ['<', self._tagName.lower()],

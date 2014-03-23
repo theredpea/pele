@@ -1,4 +1,4 @@
-from ..elementTypes import HtmlElement, HasRefElement
+from ..elementTypes import htmEl, ref, inline
 
-class A(HtmlElement, HasRefElement):
+class A(htmEl, ref, inline):
     pass

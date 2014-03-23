@@ -10,3 +10,4 @@ from span import Span   as span
 from area import Area   as area
 from div import Div     as div
 from table import Table as table
+from p import P         as p

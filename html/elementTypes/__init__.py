@@ -5,7 +5,8 @@ from SelfClosingElement import SelfClosingElement
 from HtmlElement import HtmlElement
 from TableElement import TableElement
 
-block = BlockElement
-inline = InlineElement
-htmEl = HtmlElement
-table = TableElement
+block   = BlockElement
+inline  = InlineElement
+htmEl   = HtmlElement
+table   = TableElement
+ref     = HasRefElement

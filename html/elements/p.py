@@ -1,4 +1,4 @@
-from ..elementTypes import BlockElement
+from ..elementTypes import htmEl, block 
 
-class P(BlockElement):
-        _tagName='p'
+class P(htmEl, block):
+    pass
