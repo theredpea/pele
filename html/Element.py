@@ -14,10 +14,12 @@ import sys
 class Element(IRenderable, Node):
         
     #HTML DOM distinctions
-    _hasRef = False
-    _selfClosing = False
-    _blockElement = False
-
+    _hasRef             = False
+    _selfClosing        = False
+    _blockElement       = False
+    _hasBlockChildren   = False
+    _onlyTextChildren   = True
+    
     #Stylistic decisions
     _sortAttrs = True
     
@@ -153,8 +155,13 @@ class Element(IRenderable, Node):
             #Assign parents on an individual level
             try:
                 a._parent = self
-                #a._level = self._level+1 #Doesnt work here div(div(div('hi')))
-                #Because it's evaluated from inside to outside
+                
+                #from elementTypes import inline
+                if not (isinstance(a,Text)):
+                    self._onlyTextChildren = False
+                if not (isinstance(a, Text) or hasattr(a, '_inlineElement')):
+                    self._hasBlockChildren = True
+                    print(a)
             except Exception as e:
                 pass
             return a
@@ -167,7 +174,7 @@ class Element(IRenderable, Node):
     def addText(self, *args):
         return self.add(*args)
     
-    def _joinableLevelIter(self, pretty = True, indent='  '):
+    def _joinableLevelIter(self, pretty = True, indent='  ', indentInline= True):
         """Produces iterable
         Node("div")._joinableLevelIter()
         -> ['<','div', ' ', '>', '</', 'div', '>']
@@ -176,7 +183,9 @@ class Element(IRenderable, Node):
         Based on idea that ''.join(iterOfStrings) is fastest way
         to construct big string; vs StringIO; alt StringBuilder
         """
-        def _incrLevel((index, child)):
+        
+        def _incrLevelAndIndex((index, child)):
+            """Rather than relying on the Node properties"""
             try:
                 child._level = self._level+1
                 child._index = index 
@@ -185,18 +194,21 @@ class Element(IRenderable, Node):
                 pass
             return child
             
-        opener = itertools.chain(
-                ['<', self._tagName.lower()],
-                self._joinableAttrsIter())
+        shouldIndent    =   not self._onlyTextChildren and self._parent and pretty and (indentInline or self._parent._hasBlockChildren)
         
-        closer = ['/>'] if self._selfClosing else itertools.chain(
-                ['>'],
-                itertools.imap(str, itertools.imap(_incrLevel, enumerate(self._children))),
-                ['</', self._tagName.lower(), '>'])
+        opener          =   itertools.chain(
+                            ['<', self._tagName.lower()],
+                            self._joinableAttrsIter())
         
+        closer          =   ['/>'] if self._selfClosing else itertools.chain(
+                            ['>'],
+                            itertools.imap(str, itertools.imap(_incrLevelAndIndex, enumerate(self._children))),
+                            ([indent]*self._level) if shouldIndent else [],
+                            ['</', self._tagName.lower(), '>'])
         
-        startIndent = (['\n']*(self._index==0)+[indent]*self._level) if (self._parent and pretty) else []
-        endIndent = (['\n']+[indent]*(self._level-1)) if (self._parent and pretty) else []
+        startIndent     = (['\n']*(self._index==0)+[indent]*self._level) if shouldIndent else []
+        
+        endIndent       = (['\n']) if shouldIndent else []
         
         return itertools.chain(startIndent, opener, closer, endIndent)
     
