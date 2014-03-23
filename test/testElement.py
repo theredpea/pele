@@ -33,6 +33,7 @@ class ElementPrettyStringTestCase(ElementTestCase):
     """Tests the content for style; 
         i.e. indented to the right level
         Or not indented when inline"""
+        
     def test_siblings_no_extra_line_break(self):
         """Avoid these:---------|
         <div>                   |

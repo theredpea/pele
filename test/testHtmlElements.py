@@ -11,6 +11,16 @@ class ElementsValidationTestCase(ElementTestCase):
         
 class ElementsFluentConstructorTestCase(ElementTestCase):
         
+    def setUp(self):
+        _nav = {'Index':'/index','Contact': '/contact'}
+        def _nav_link((text,link)):
+            return li(a(text, href=link))
+        self._ul_string ="""<ul>
+  <li><a href="/index">Index</a></li>
+  <li><a href="/contact">Contact</a></li>
+</ul>"""
+        self._ul_with_generation = ul((li(a(text, href=link)) for text,link in _nav.items()))
+        self._ul_with_map = ul(map(_nav_link, _nav.items()))
     def test_fluency(self):
         d = div(
                 span('hello', 
@@ -20,4 +30,11 @@ class ElementsFluentConstructorTestCase(ElementTestCase):
                 )
         print(d)
         self.assertTrue(d)
+    
+    def test_generator(self):
+        self.assertEqual(str(self._ul_with_generation), self._ul_string)
+
+    def test_map(self):
+        self.assertEqual(str(self._ul_with_map), self._ul_string)
+        
         
