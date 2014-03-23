@@ -194,23 +194,30 @@ class Element(IRenderable, Node):
                 pass
             return child
             
-        shouldIndent    =   not self._onlyTextChildren and self._parent and pretty and (indentInline or self._parent._hasBlockChildren)
-        
+        shouldIndent    =   pretty and not self._onlyTextChildren  and (indentInline or self._parent._hasBlockChildren)
+
         opener          =   itertools.chain(
                             ['<', self._tagName.lower()],
                             self._joinableAttrsIter())
-        
+        innerIndent     =   (['\n']+([indent]*(self._level+1))) if shouldIndent else []
+        innerDedent     =   (['\n']+([indent]*(self._level))) if shouldIndent else []
         closer          =   ['/>'] if self._selfClosing else itertools.chain(
                             ['>'],
-                            itertools.imap(str, itertools.imap(_incrLevelAndIndex, enumerate(self._children))),
-                            ([indent]*self._level) if shouldIndent else [],
+                            innerIndent,
+                            itertools.chain.from_iterable(
+                                itertools.izip_longest(
+                                    itertools.imap(str, 
+                                        itertools.imap(_incrLevelAndIndex, enumerate(self._children))
+                                    ),
+                                    [], #Necessary for zip to work
+                                    fillvalue = ''.join(innerIndent)
+                                )
+                            ),
+                            innerDedent,
                             ['</', self._tagName.lower(), '>'])
         
-        startIndent     = (['\n']*(self._index==0)+[indent]*self._level) if shouldIndent else []
         
-        endIndent       = (['\n']) if shouldIndent else []
-        
-        return itertools.chain(startIndent, opener, closer, endIndent)
+        return itertools.chain(opener, closer)
     
     def _joinableAttrsIter(self):
         """Produces iterable

@@ -8,6 +8,10 @@ class ElementTestCase(unittest.TestCase):
         
 
 class ElementStringTestCase(ElementTestCase):
+    """Tests the content for substance; 
+        i.e. it has opening tag and closing tag
+        it can be parsed
+        etc."""
         
     def test_str_output_matches_string(self):
         self.assertEqual(str(self.div), '<div class="className" id="idName"></div>')
@@ -28,6 +32,10 @@ class ElementStringTestCase(ElementTestCase):
         _d_with_three_spans = Element('div', [Element('span')]*3)
         self.assertEqual(str(_d_with_three_spans), '<div>\n  <span></span>\n  <span></span>\n  <span></span>\n</div>')
         
+class ElementPrettyStringTestCase(ElementTestCase):
+    """Tests the content for style; 
+        i.e. indented to the right level
+        Or not indented when inline"""
     def test_siblings_no_extra_space(self):
         """Avoid this:----------|
         <div>                   |
