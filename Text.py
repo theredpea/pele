@@ -5,7 +5,7 @@ except:
         #Python 2
         from xml.sax import saxutils as escaper
 
-class Text(object):
+class Text(str):
         def __init__(self, text='', leaveRaw = False):
                 self._isEncoded = not leaveRaw
                 self._value = text

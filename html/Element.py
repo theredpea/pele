@@ -174,7 +174,7 @@ class Element(IRenderable, Node):
 
         Used in stringing
         Based on idea that ''.join(iterOfStrings) is fastest way
-        to construct big string; vs StringIO; alt StringBuilder
+        to construct big string; vs StringIO; alt to StringBuilder
         """
         source = self._parent or self
         indentInline    = source._indentInline
@@ -247,6 +247,11 @@ class Element(IRenderable, Node):
                     
     def __str__(self):
         return ''.join(self._joinableLevelIter())
+        
+    def __repr__(self):
+        return """Element('{tagName}',
+{children}, 
+{attrs})""".format(tagName =self._tagName, children=repr(self._children), attrs=self._attributes)
         
     def Render(self):
         return self
