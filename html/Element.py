@@ -167,7 +167,7 @@ class Element(IRenderable, Node):
     _pretty = True
     _indent = '  '
     
-    def _joinableLevelIter(self, pretty=_pretty, indentInline = _indentInline, indent = _indent):
+    def _joinableLevelIter(self):#, pretty=_pretty, indentInline = _indentInline, indent = _indent):
         """Produces iterable
         Node("div")._joinableLevelIter()
         -> ['<','div', ' ', '>', '</', 'div', '>']
@@ -176,7 +176,11 @@ class Element(IRenderable, Node):
         Based on idea that ''.join(iterOfStrings) is fastest way
         to construct big string; vs StringIO; alt StringBuilder
         """
-        
+        source = self._parent or self
+        indentInline    = source._indentInline
+        pretty          = source._pretty
+        indent          = source._indent
+            
         def _incrLevelAndIndex((index, child)):
             """Rather than relying on the Node @properties"""
             try:

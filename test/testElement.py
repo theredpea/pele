@@ -28,15 +28,25 @@ class ElementStringTestCase(ElementTestCase):
     def test_str_output_pretty_indent_matches_new_Element_string(self):
         self.assertEqual(str(self.div), str(Element('div').addAttribute('id', 'idName').addAttribute('class','className')))
         
-    def test_siblings_no_extra_space(self):
-        _d_with_three_spans = Element('div', [Element('span')]*3)
-        self.assertEqual(str(_d_with_three_spans), '<div>\n  <span></span>\n  <span></span>\n  <span></span>\n</div>')
         
 class ElementPrettyStringTestCase(ElementTestCase):
     """Tests the content for style; 
         i.e. indented to the right level
         Or not indented when inline"""
-    def test_siblings_no_extra_space(self):
+    def test_siblings_no_extra_line_break(self):
+        """Avoid these:---------|
+        <div>                   |
+          <span></span>         |
+                       <--------|
+          <span></span>         |
+                       <---------
+          <span></span>
+        </div>"""
+        _d_with_three_spans = Element('div', [Element('span')]*3)
+        _d_with_three_spans._indentInline = True
+        self.assertEqual(str(_d_with_three_spans), '<div>\n  <span></span>\n  <span></span>\n  <span></span>\n</div>')
+        
+    def test_siblings_no_extra_indent(self):
         """Avoid this:----------|
         <div>                   |
           <span></span>         |
@@ -49,6 +59,7 @@ class ElementPrettyStringTestCase(ElementTestCase):
           </span>
         </div>"""
         _twice_nested_div_with_spans = Element('div',[Element('span',[Element('span',_)]*_) for _ in range(3)])
+        _twice_nested_div_with_spans._indentInline = True
         #Just testing this part is correct:
         _no_double_indent_span = '    <span>2</span>\n'*2
         self.assertIn(_no_double_indent_span, str(_twice_nested_div_with_spans))
