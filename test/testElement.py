@@ -26,8 +26,25 @@ class ElementStringTestCase(ElementTestCase):
         
     def test_siblings_no_extra_space(self):
         _d_with_three_spans = Element('div', [Element('span')]*3)
-        
         self.assertEqual(str(_d_with_three_spans), '<div>\n  <span></span>\n  <span></span>\n  <span></span>\n</div>')
+        
+    def test_siblings_no_extra_space(self):
+        """Avoid this:----------|
+        <div>                   |
+          <span></span>         |
+          <span>                |
+            <span>1</span>      |
+          </span>               |
+          <span>                |
+            <span>2</span>      |
+              <span>2</span> <---
+          </span>
+        </div>"""
+        _twice_nested_div_with_spans = Element('div',[Element('span',[Element('span',_)]*_) for _ in range(3)])
+        #Just testing this part is correct:
+        _no_double_indent_span = '    <span>2</span>\n'*2
+        self.assertIn(_no_double_indent_span, str(_twice_nested_div_with_spans))
+        
         
 class ElementParseTagTestCase(ElementTestCase):
     def setUp(self):

@@ -27,6 +27,7 @@ class Element(IRenderable, Node):
             import html.elements as elements
         except Exception as e:
             import elements
+        
         subClass = getattr(elements, tagName and tagName.lower(), False)
         
         if cls is Element and subClass:

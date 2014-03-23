@@ -4,6 +4,11 @@ from testElement import ElementTestCase
 from ..html.elements import *
 
 
+class ElementsValidationTestCase(ElementTestCase):
+        
+    def test_inline_validation(self):
+        pass
+        
 class ElementsFluentConstructorTestCase(ElementTestCase):
         
     def test_fluency(self):
