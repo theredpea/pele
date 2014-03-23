@@ -23,6 +23,7 @@ class Element(IRenderable, Node):
     #Stylistic decisions
     _sortAttrs = True
     
+    
     def __new__(cls, *args, **kwargs):
         tagName = (args and args[0]) or kwargs.get('tagName')
         try:
@@ -44,35 +45,25 @@ class Element(IRenderable, Node):
             #and return an animal ... OR a farmanimal OR a pet depending on that data.
             return object.__new__(subClass, *args, **kwargs)         
         else:
-        
             return object.__new__(cls, *args, **kwargs)
             
         
     def __init__(self, tagName='', *args, **kwargs):
         """Node("div", class="className", id="specialDiv")
         -> <div class="className" id ="specialDiv"></div>"""
-        
-        #print('Element.init {0} {1} {2}'.format(tagName, args, kwargs))
         super(Element,self).__init__(*args, **kwargs)
         
         self._children = Fragment()
-        
-        #TODO: Some inheritance:
-        #http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-22445964"""
         self._attributes= {}
-        
         self._classes = set()
         
         self.addAttribute(**kwargs)
-        
         if tagName:
             self.parseTagName(tagName)
             
         self.add(*args)
 
-        
-
-    def render(self):
+    def Render(self):
         return self
 
     def parseTagName(self, tagExpression):
@@ -149,19 +140,16 @@ class Element(IRenderable, Node):
         """div.add(Node("p").add("Paragraph content"))
         -> Node where _children includes p;
         Will render <div><p>Paragraph content</p></div>
-
         """
         def _addParent(a):
             #Assign parents on an individual level
             try:
                 a._parent = self
-                
                 #from elementTypes import inline
                 if not (isinstance(a,Text)):
                     self._onlyTextChildren = False
                 if not (isinstance(a, Text) or hasattr(a, '_inlineElement')):
                     self._hasBlockChildren = True
-                    print(a)
             except Exception as e:
                 pass
             return a
@@ -174,7 +162,11 @@ class Element(IRenderable, Node):
     def addText(self, *args):
         return self.add(*args)
     
-    def _joinableLevelIter(self, pretty = True, indent='  ', indentInline= True):
+    _indentInline = False
+    _pretty = True
+    _indent = '  '
+    
+    def _joinableLevelIter(self, pretty=_pretty, indentInline = _indentInline, indent = _indent):
         """Produces iterable
         Node("div")._joinableLevelIter()
         -> ['<','div', ' ', '>', '</', 'div', '>']
@@ -193,24 +185,31 @@ class Element(IRenderable, Node):
                 #A string?
                 pass
             return child
+        
             
-        shouldIndent    =   pretty and not self._onlyTextChildren  and (indentInline or self._parent._hasBlockChildren)
+        shouldIndent    =   pretty and not self._onlyTextChildren  and (indentInline or self._parent and self._parent._hasBlockChildren)
 
         opener          =   itertools.chain(
                             ['<', self._tagName.lower()],
                             self._joinableAttrsIter())
         innerIndent     =   (['\n']+([indent]*(self._level+1))) if shouldIndent else []
         innerDedent     =   (['\n']+([indent]*(self._level))) if shouldIndent else []
+        
+        def _strWithIndent(child):
+            result = (str(child),)
+            try:
+                if child._index!=0:
+                    result = itertools.chain(innerIndent, result)
+            except:
+                pass
+            return result
+            
         closer          =   ['/>'] if self._selfClosing else itertools.chain(
                             ['>'],
                             innerIndent,
                             itertools.chain.from_iterable(
-                                itertools.izip_longest(
-                                    itertools.imap(str, 
-                                        itertools.imap(_incrLevelAndIndex, enumerate(self._children))
-                                    ),
-                                    [], #Necessary for zip to work
-                                    fillvalue = ''.join(innerIndent)
+                                itertools.imap(_strWithIndent, 
+                                    itertools.imap(_incrLevelAndIndex, enumerate(self._children))
                                 )
                             ),
                             innerDedent,
