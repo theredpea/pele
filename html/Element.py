@@ -246,12 +246,23 @@ class Element(IRenderable, Node):
         return itertools.chain.from_iterable(itertools.imap(_joinableAttrIter, attrs))
                     
     def __str__(self):
+        """For rendering HTML to a page"""
         return ''.join(self._joinableLevelIter())
         
     def __repr__(self):
-        return """Element('{tagName}',
-{children}, 
-{attrs})""".format(tagName =self._tagName, children=repr(self._children), attrs=self._attributes)
+        childrenArg = ''
+        attrsArg    = ''
+        
+        children=repr(self._children if len(self._children)!=1 else self._children[0])
+        attrs=self._attributes or ''
+        
+        #format() uses repr
+        if children:
+            childrenArg = ',\n{}'.format(children)
+        if attrs:
+            attrsArg = ',\n{}'.format(attrs)
+            
+        return """Element('{0}'{1}{2})""".format(self._tagName, childrenArg, attrsArg)
         
     def Render(self):
         return self

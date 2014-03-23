@@ -29,6 +29,9 @@ class Fragment(list):
     def __str__(self):
         return '\n'.join(map(str, iter(self)))
         
+    def __repr___(self):
+        return ',\n'.join(map(repr, self))
+        
     def add(self, argList=[], *args):
         self.extend(Fragment(argList, *args))
         
