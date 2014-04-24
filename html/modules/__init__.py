@@ -1,3 +1,2 @@
-
-from ViewModule import ViewModule
+from Module import Module
 from HtmlDocument import HtmlDocument

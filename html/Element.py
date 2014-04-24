@@ -99,7 +99,7 @@ class Element(IRenderable, Node):
         if not newClass and not args:
             return self
 
-        self._classes.update(itertools.chain.from_iterable([c.split(' ') for c in ([newClass] + list(args)) if c]))
+        self._classes.update(itertools.chain.from_iterable([str(c).split(' ') for c in ([newClass] + list(args)) if c]))
         self._attributes['class'] = ' '.join(self._classes)
         return self
 
@@ -282,3 +282,8 @@ class Element(IRenderable, Node):
     attr = addAttribute
     append = add
     text = addText
+
+    #Element capitalization aliases
+    AddClass = addClass
+    AddAttribute = addAttribute
+

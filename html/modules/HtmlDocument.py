@@ -1,7 +1,7 @@
-from ViewModule import ViewModule
-from pele.html.Element import Element
+from Module import Module
+from html.Element import Element
 
-class HtmlDocument(ViewModule):
+class HtmlDocument(Module):
 
     def __init__(self):
         self.Head = Element('head')

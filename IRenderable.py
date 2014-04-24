@@ -1,7 +1,7 @@
 from Node import Node
 from abc import ABCMeta, abstractmethod
 
-class IRenderable:
+class IRenderable(object):
     """Closest Python has to an interface? http://docs.python.org/2/library/abc.html"""
     __metaclass__ = ABCMeta
     
