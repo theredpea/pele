@@ -4,12 +4,14 @@ import re
 import itertools
 import sys
 
+def _joinable(a):
+        try:
+                return a._joinableLevelIter(level+1, self._prettyIndent)
+        except:
+                return [str(a)]
+
 class Element(Node):
                 
-        #HTML DOM distinctions
-        _hasRef = False
-        _selfClosing = False
-        _blockElement = False
 
         def __new__(cls, *args, **kwargs):
                 tagName = (args and args[0]) or kwargs.get('tagName')
@@ -178,29 +180,28 @@ class Element(Node):
                 if self._parent and not self._overrideParentPretty:
                         self._prettyIndent = self._parent._prettyIndent
                         
-                def _joinable(a):
-                        try:
-                                return a._joinableLevelIter(level+1, self._prettyIndent)
-                        except:
-                                return [str(a)]
                         
-                
-                opener = itertools.chain(
-                                ['<', self._tagName.lower(), ' ' ],
-                                itertools.chain.from_iterable(self._joinableAttrIter()))
-                
-                closer = ['/>'] if self._selfClosing else itertools.chain(
-                                ['>'],
-                                itertools.chain.from_iterable(itertools.imap(_joinable, self.children)),
-                                ['</', self._tagName, '>'])
-
-
-                
                 startIndent = (['\n']+['\t']*self._level) if (self._parent and self._prettyIndent) else []
                 endIndent = (['\n']+['\t']*(self._level-1)) if (self._parent and self._prettyIndent) else []
                 
-                return itertools.chain(startIndent, opener, closer, endIndent)
+                return itertools.chain(startIndent, self.opener, self.contentsAndCloser, endIndent)
         
+        @property
+        def contentsAndCloser(self):
+        	"""The closing tag;
+        	Overridden in elementTypes.SelfClosingElement"""
+        	return itertools.chain(
+                                ['>'],
+                                itertools.chain.from_iterable(itertools.imap(_joinable, self.children)),
+                                ['</', self._tagName, '>']
+
+        @property
+        def opener(self):
+        	"""The opening tag; renders attributes"""
+        	return itertools.chain(
+                                ['<', self._tagName.lower(), ' ' ],
+                                itertools.chain.from_iterable(self._joinableAttrIter()))
+
         def _joinableAttrIter(self):
                 """Produces iterable
                 Node("div").addAttribute(href="http://www.github.com", class="open")

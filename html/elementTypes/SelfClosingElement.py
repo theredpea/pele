@@ -1,4 +1,8 @@
 from ..Element import Element
 
 class SelfClosingElement(Element):
-        _selfClosing = True
+
+        @property
+        def contentsAndCloser(self):
+        	"""Self-closing has no contents"""
+        	return ['/>'] 
