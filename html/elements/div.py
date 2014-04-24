@@ -1,4 +1,4 @@
-from ..elementTypes import BlockElement
+from ..elementTypes import block, htmEl
 
-class Div(BlockElement):
-        _tagName='div'
+class Div(htmEl, block):
+    pass

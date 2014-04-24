@@ -1,4 +1,4 @@
-from ..elementTypes import HasRefElement
+from ..elementTypes import htmEl, ref, inline
 
-class A(HasRefElement):
-        _tagName="a"
+class A(htmEl, ref, inline):
+    pass
