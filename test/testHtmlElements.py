@@ -1,7 +1,5 @@
-import unittest
-import timeit
 from testElement import ElementTestCase
-from html.elements import *
+from ..html.elements import *
 
 
 class ElementsValidationTestCase(ElementTestCase):

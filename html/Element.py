@@ -1,15 +1,13 @@
 #Node
-from Node import Node
-from Text import Text
-from Fragment import Fragment
-from IRenderable import IRenderable
+from ..Node import Node
+from ..Text import Text
+from ..Fragment import Fragment
+from ..IRenderable import IRenderable
 
 #Builtin
 import re
 import itertools
-import sys
 
-      
 
 class Element(IRenderable, Node):
         

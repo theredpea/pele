@@ -1,6 +1,7 @@
 import unittest
-import timeit
-from html.Element import Element
+
+from ..html.Element import Element
+
 
 class ElementTestCase(unittest.TestCase):
     def setUp(self):

@@ -1,4 +1,3 @@
-from Node import Node
 from Element import Element as ele #Alias
 
 #Element Types

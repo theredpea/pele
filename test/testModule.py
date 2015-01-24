@@ -1,7 +1,5 @@
-import unittest
-import timeit
 from testElement import ElementTestCase
-from html.modules.Module import Module
+from ..html.modules.Module import Module
 
 
 class ModuleTestCase(ElementTestCase):

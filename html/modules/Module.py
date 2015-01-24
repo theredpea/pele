@@ -1,6 +1,8 @@
-from IRenderable import IRenderable
-from html.Element import Element
 import inspect
+
+from ...IRenderable import IRenderable
+from ...html.Element import Element
+
 
 class Module(IRenderable):
 

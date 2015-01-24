@@ -1,12 +1,11 @@
-import unittest
-import timeit
 import operator
-import itertools
 
+import itertools
 from testElement import ElementTestCase
-from html.Element import Element
-from Fragment import Fragment
-from Text import Text
+from ..html.Element import Element
+from ..Fragment import Fragment
+from ..Text import Text
+
 
 class NodeFundamentelsTestCase(ElementTestCase):
     def setUp(self):

@@ -1,5 +1,5 @@
 from Module import Module
-from html.Element import Element
+from ..Element import Element
 
 class HtmlDocument(Module):
 
